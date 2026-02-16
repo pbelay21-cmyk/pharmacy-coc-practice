@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>COC Pharmacy Practice Exam</title>
+<style>
+body{font-family:Arial;margin:20px}
+.question{display:none}
+.question.active{display:block}
+.navcol{margin-top:20px}
+.navcol button{display:block;margin:4px;width:45px}
+.navcol button.unanswered{background:#ffcccc;color:#900}
+#timer{float:right;color:red;font-weight:bold}
+.options label{display:block;margin:4px 0}
+.navbuttons{margin-top:10px;margin-bottom:10px}
+#result.good{color:green}
+#result.bad{color:red}
+</style>
+</head>
+<body>
+
+<script>
+var p = prompt("Enter exam password:");
+if(p !== "ph1234"){
+  alert("Wrong password");
+  document.body.innerHTML = "";
+}
+</script>
+
+<h2>COC Pharmacy Practice Exam <span id="timer"></span></h2>
+
+<div id="exam"></div>
+
+<div class="navbuttons">
+  <button onclick="prev()">Previous</button>
+  <button onclick="submitExam()">Submit</button>
+  <button onclick="next()">Next</button>
+</div>
+
+<div class="navcol" id="nav"></div>
+
+<div id="result" style="margin-top:15px;font-weight:bold"></div>
+
+<script>
+const questions = [
+["Which of the following drug affect alertness of a heavy truck driver?",["Chlorpheniramine","Omeprazole","Amoxicillin","Ranitidine"],0],
+["The basic difference between the BIN card and STOCK card is",["BIN card should place with the pharmacy manager","Stock Card contain the unit price of medicines","Stock cards record expired medicines with medicine","Bin Card records unit prices of medicine"],1],
+["Which one of the following is Not component of Pharmacokinetics?",["Side effect","Absorption","Metabolism","Distribution"],0],
+["The medicine that can be dispensed without prescription (OTC) to patients is",["Amoxicillin-Clavulanic acid","Paracetamol","Tramadol","Morphine"],1],
+["Which one of the following is false about foundation creams?",["They are almost one type of emulsion","They are easy to apply when they are thicker creams","They provide uniform complexion by covering flaws","They help powders to adhere to skin"],1],
+["One teaspoonful is equivalent to one of the following",["15 ml","10 ml","20 ml","5 ml"],0],
+["Which one of the following is false about storage of controlled substances?",["They do not need special registry recording and prescription","There should be signature at window and takeover","They require physical counting after each entry","They need to put under double locked cabinet"],0],
+["Which of the following is included as nutritional supplement?",["Lipids","Carbohydrates","Proteins","Multivitamins"],3],
+["Which layer of the skin is the first to come in contact with cosmetic products?",["Hypodermis","Dermis","Subcutaneous","Epidermis"],3],
+["Which one of the following represent a cold temperature range?",["8–15°C","2–8°C","20–25°C","15–25°C"],1],
+["Which one of the following is correct about Bin cards?",["Usually placed at the shelf where the product is found","Placed in filing cabinet in the pharmacist office","The same in all aspects with stock cards","Used by store pharmacy professional for procurement"],0],
+["Which of the following pair of abbreviation and full name is mismatched?",["a.c – before meals","p.r.n – as per needed","q.o.d – once a day","b.i.d – twice a day"],2],
+["What information should you give a patient when issuing metronidazole?",["Do not drive or operate machinery","Do not consume alcohol","Keep refrigerated","Do not consume caffeine"],1],
+["Which method of drug procurement is Not expressed in numbers?",["Restrictive tender","Closed tender","Open tender","Direct procurement"],3],
+["Meaning of essential medicines is",["Life saving drugs","Listed in national formulary","For emergency demand only","Meeting health need of majority"],3],
+["Which statement is true regarding procurement and storage?",["Flammable substances stored separately","Mixed stock arranged on floor","Stock checked only for quantity","Damaged medicines discarded together"],0],
+["Prescription used for Diazepam is",["Psychotropic prescription","Narcotic prescription","Ordinary prescription","Normal prescription"],0],
+["Monomers making up carbohydrates are",["Monosaccharides","Nucleotides","Amino acids","Fatty acids"],0],
+["Serious side effect of warfarin is",["Palpitation","Nausea and vomiting","Bleeding","Diarrhea"],2],
+["Disadvantage of parenteral products is",["Suitable for unconscious patients","Accurate dose","Rapid action","Need trained personnel"],3],
+["Ointments are",["Semisolid","Liquid","Suspension","Solid"],0],
+["Label 'Protect from moisture' means",["≤60% relative humidity","Do not store below 8°C","Do not store over 15°C","Do not store over 30°C"],0],
+["Not main function of cosmetic product",["Promoting attractiveness","Cleansing","Altering body function","Wellbeing"],2],
+["Maximum months of stock allowed to health centers",["2 weeks","1 month","4 months","2 months"],3],
+["Licensing health products to patient budget is",["Autonomy","Confidentiality","Fidelity","Justice"],3],
+["Correct statement about traditional medicine in Ethiopia",["Wider spectrum than modern medicine","Purely scientific","Disregards belief","Socioeconomic factors influence use"],3],
+["Pharmacy tracking system is",["APTS","IPLS","LMIS","PSCM"],0],
+["Vitamin preventing warfarin bleeding",["Vitamin K","Vitamin A","Vitamin E","Vitamin D"],0],
+["Not purpose of inventory management",["Increase cost","Decrease cost","Prevent stock out","Prevent expiration"],0],
+["Therapeutic class of Losartan",["Diuretic","ACE inhibitor","ARB","Beta blocker"],2],
+["Dosage form requiring 'Shake well'",["Solution","Syrup","Elixir","Suspension"],3],
+["Best first aid for poisoning",["Give antidote","Correct ABC","Identify poison","Give emetic"],1],
+["Antihypertensive drug is",["Cimetidine","Hydrochlorothiazide","Propylthiouracil","Phenytoin"],1],
+["Most acceptable stock rotation",["FEFO","LIFO","FILO","FIFO"],0],
+["Per Os means",["To mouth","When necessary","At bedtime","Every hour"],0],
+["Fastest onset route",["Oral","IV","SC","IM"],1],
+["Quantity used during reporting period",["Stock on order","Stock turnover","Safety stock","Stock on hand"],1],
+["Sterile preparation is",["Otic","Ophthalmic","Nasal","Granules"],1],
+["First line TB drug",["Kanamycin","Amikacin","Isoniazid","Gatifloxacin"],2],
+["Not component of ORS",["Sodium","Calcium","Chloride","Potassium"],1],
+["Quinine is",["Anticoagulant","Antidepressant","Antimalarial","Antidiabetic"],2],
+["Drug for INH neuropathy",["Diclofenac","Pyridoxine","Ascorbic acid","Folic acid"],1],
+["Shelf arrangement used is",["Pharmacological","Alphabetical","Chemical hazard","Dosage form"],0],
+["Most common local anesthetic",["Propofol","Lidocaine","Ketamine","Halothane"],1]
+];
+
+let cur=0, answers=Array(45).fill(null), time=3600;
+const exam=document.getElementById("exam");
+const nav=document.getElementById("nav");
+const navButtons=[];
+
+questions.forEach((q,i)=>{
+  const d=document.createElement("div");
+  d.className="question"+(i===0?" active":"");
+  d.innerHTML=`<b>${i+1}. ${q[0]}</b><div class="options">`+
+    q[1].map((o,j)=>`<label><input type="radio" name="q${i}" onclick="selectAnswer(${i},${j})"> ${o}</label>`).join("")+
+    `</div>`;
+  exam.appendChild(d);
+
+  const b=document.createElement("button");
+  b.textContent=(i+1);
+  b.classList.add("unanswered");
+  b.onclick=()=>show(i);
+  nav.appendChild(b);
+  navButtons.push(b);
+});
+
+function selectAnswer(i,j){
+  answers[i]=j;
+  navButtons[i].classList.remove("unanswered");
+}
+
+function show(i){
+  document.querySelectorAll(".question").forEach(q=>q.classList.remove("active"));
+  document.querySelectorAll(".question")[i].classList.add("active");
+  cur=i;
+}
+function next(){if(cur<44)show(cur+1)}
+function prev(){if(cur>0)show(cur-1)}
+
+function submitExam(){
+  let score=0;
+  for(let i=0;i<questions.length;i++){
+    if(answers[i]===questions[i][2]) score++;
+  }
+  let res=document.getElementById("result");
+  if(score>=24){
+    res.className="good";
+    res.innerHTML="Score: "+score+"/45<br>Result: SATISFACTORY";
+  } else {
+    res.className="bad";
+    res.innerHTML="Score: "+score+"/45<br>Result: UNSATISFACTORY";
+  }
+  document.querySelectorAll("input[type=radio]").forEach(r=>r.disabled=true);
+  res.scrollIntoView({behavior:"smooth"});
+}
+
+setInterval(()=>{
+  let m=Math.floor(time/60), s=time%60;
+  document.getElementById("timer").textContent="Time Left: "+m+":"+(s<10?"0":"")+s;
+  if(time<=0) submitExam();
+  time--;
+},1000);
+</script>
+
+<script>
+const SERVER_URL = "https://script.google.com/macros/s/AKfycbxh6qNsW16cLtfYGblilyIAL3OLZmZGTCOnlaSFkfuErDS0uc81AB_X9YQRenUI7Ey9/exec";
+
+function generateDeviceId() {
+    let id = localStorage.getItem("pharmacy_device");
+    if (!id) {
+        id = crypto.randomUUID();
+        localStorage.setItem("pharmacy_device", id);
+    }
+    return id;
+}
+
+async function checkAccess() {
+    try {
+        const response = await fetch(SERVER_URL, {
+            method: "POST",
+            body: JSON.stringify({
+                deviceId: generateDeviceId()
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.status === "expired") {
+            document.body.innerHTML = "<h2>Exam Expired</h2>";
+            return;
+        }
+
+        if (data.status === "valid" || data.status === "started") {
+            console.log("Access granted");
+        }
+
+    } catch (error) {
+        document.body.innerHTML = "<h2>Internet Required</h2>";
+    }
+}
+
+checkAccess();
+</script>
+</body>
+</html>
